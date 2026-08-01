@@ -660,6 +660,7 @@ public class Navigation {
 			return;
 
 		frontier.add(new FrontierEntry(distanceToNode2, initialPenalty, initialNode1, initialNode2, initialEdge));
+		List<Entry<TrackNode, TrackEdge>> validTargets = new ArrayList<>();
 
 		while (!frontier.isEmpty()) {
 			FrontierEntry entry = frontier.poll();
@@ -689,7 +690,7 @@ public class Navigation {
 				}
 			}
 
-			List<Entry<TrackNode, TrackEdge>> validTargets = new ArrayList<>();
+			validTargets.clear();
 			Map<TrackNode, TrackEdge> connectionsFrom = graph.getConnectionsFrom(node2);
 			for (Entry<TrackNode, TrackEdge> connection : connectionsFrom.entrySet()) {
 				TrackNode newNode = connection.getKey();

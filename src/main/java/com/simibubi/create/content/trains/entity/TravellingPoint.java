@@ -38,6 +38,14 @@ public class TravellingPoint {
 	public double position;
 	public boolean blocked;
 	public boolean upsideDown;
+	@Nullable
+	private TravellingPoint firstFollowTarget;
+	@Nullable
+	private TravellingPoint secondFollowTarget;
+	@Nullable
+	private ITrackSelector firstFollowSelector;
+	@Nullable
+	private ITrackSelector secondFollowSelector;
 
 	public enum SteerDirection {
 		NONE(0), LEFT(-1), RIGHT(1);
@@ -87,7 +95,17 @@ public class TravellingPoint {
 	}
 
 	public ITrackSelector follow(TravellingPoint other) {
-		return follow(other, null);
+		if (firstFollowSelector != null && firstFollowTarget == other)
+			return firstFollowSelector;
+		if (secondFollowSelector != null && secondFollowTarget == other)
+			return secondFollowSelector;
+
+		ITrackSelector selector = follow(other, null);
+		secondFollowTarget = firstFollowTarget;
+		secondFollowSelector = firstFollowSelector;
+		firstFollowTarget = other;
+		firstFollowSelector = selector;
+		return selector;
 	}
 
 	public ITrackSelector follow(TravellingPoint other, @Nullable Consumer<Boolean> success) {
@@ -150,6 +168,13 @@ public class TravellingPoint {
 				success.accept(false);
 			return validTargets.get(0);
 		};
+	}
+
+	void clearFollowCache() {
+		firstFollowTarget = null;
+		secondFollowTarget = null;
+		firstFollowSelector = null;
+		secondFollowSelector = null;
 	}
 
 	public ITrackSelector steer(SteerDirection direction, Vec3 upNormal) {

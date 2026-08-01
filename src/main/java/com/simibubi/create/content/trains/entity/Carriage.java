@@ -13,14 +13,13 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-import org.apache.commons.lang3.mutable.MutableDouble;
 import org.jetbrains.annotations.Nullable;
 
 import com.simibubi.create.content.contraptions.Contraption;
 import com.simibubi.create.content.contraptions.minecart.TrainCargoManager;
 import com.simibubi.create.content.trains.entity.TravellingPoint.IEdgePointListener;
+import com.simibubi.create.content.trains.entity.TravellingPoint.IPortalListener;
 import com.simibubi.create.content.trains.entity.TravellingPoint.ITrackSelector;
 import com.simibubi.create.content.trains.graph.DimensionPalette;
 import com.simibubi.create.content.trains.graph.TrackGraph;
@@ -79,6 +78,7 @@ public class Carriage {
 	Map<Integer, CompoundTag> serialisedPassengers;
 
 	private Map<ResourceKey<Level>, DimensionalCarriageEntity> entities;
+	private final IPortalListener portalListener = this::handlePortal;
 
 	static final int FIRST = 0, MIDDLE = 1, LAST = 2, BOTH = 3;
 
@@ -105,6 +105,10 @@ public class Carriage {
 
 	public void setTrain(Train train) {
 		this.train = train;
+		bogeys.forEach(bogey -> {
+			if (bogey != null)
+				bogey.points.forEach(TravellingPoint::clearFollowCache);
+		});
 	}
 
 	public boolean presentInMultipleDimensions() {
@@ -147,18 +151,14 @@ public class Carriage {
 
 	public double travel(Level level, TrackGraph graph, double distance, TravellingPoint toFollowForward,
 		TravellingPoint toFollowBackward, int type) {
-
-		Function<TravellingPoint, ITrackSelector> forwardControl =
-			toFollowForward == null ? train.navigation::control : mp -> mp.follow(toFollowForward);
-		Function<TravellingPoint, ITrackSelector> backwardControl =
-			toFollowBackward == null ? train.navigation::control : mp -> mp.follow(toFollowBackward);
-
 		boolean onTwoBogeys = isOnTwoBogeys();
 		double stress = train.derailed ? 0 : onTwoBogeys ? bogeySpacing - getAnchorDiff() : 0;
 		blocked = false;
 
-		MutableDouble distanceMoved = new MutableDouble(distance);
+		double distanceMoved = distance;
 		boolean iterateFromBack = distance < 0;
+		IEdgePointListener frontListener = train.frontSignalListener();
+		IEdgePointListener backListener = train.backSignalListener();
 
 		for (boolean firstBogey : Iterate.trueAndFalse) {
 			if (!firstBogey && !onTwoBogeys)
@@ -178,19 +178,19 @@ public class Carriage {
 					: actuallyFirstBogey && onTwoBogeys ? bogeys.getSecond().points.getFirst() : null;
 
 				double correction = bogeyStress * (actuallyFirstWheel ? 0.5d : -0.5d);
-				double toMove = distanceMoved.getValue();
+				double toMove = distanceMoved;
 
-				ITrackSelector frontTrackSelector =
-					prevPoint == null ? forwardControl.apply(point) : point.follow(prevPoint);
-				ITrackSelector backTrackSelector =
-					nextPoint == null ? backwardControl.apply(point) : point.follow(nextPoint);
+				ITrackSelector frontTrackSelector = prevPoint == null
+					? toFollowForward == null ? train.navigation.control(point) : point.follow(toFollowForward)
+					: point.follow(prevPoint);
+				ITrackSelector backTrackSelector = nextPoint == null
+					? toFollowBackward == null ? train.navigation.control(point) : point.follow(toFollowBackward)
+					: point.follow(nextPoint);
 
 				boolean atFront = (type == FIRST || type == BOTH) && actuallyFirstWheel && actuallyFirstBogey;
 				boolean atBack =
 					(type == LAST || type == BOTH) && !actuallyFirstWheel && (!actuallyFirstBogey || !onTwoBogeys);
 
-				IEdgePointListener frontListener = train.frontSignalListener();
-				IEdgePointListener backListener = train.backSignalListener();
 				IEdgePointListener passiveListener = point.ignoreEdgePoints();
 
 				toMove += correction + bogeyCorrection;
@@ -200,26 +200,28 @@ public class Carriage {
 					toMove > 0 ? atFront ? frontListener : atBack ? backListener : passiveListener
 						: atFront ? backListener : atBack ? frontListener : passiveListener;
 
-				double moved = point.travel(graph, toMove, trackSelector, signalListener, point.ignoreTurns(), c -> {
-					for (DimensionalCarriageEntity dce : entities.values())
-						if (c.either(tnl -> tnl.equalsIgnoreDim(dce.pivot)))
-							return false;
-					if (entities.size() > 1) {
-						train.status.doublePortal();
-						return true;
-					}
-					return false;
-				});
+				double moved = point.travel(graph, toMove, trackSelector, signalListener, point.ignoreTurns(), portalListener);
 
 				blocked |= point.blocked;
 
-				distanceMoved.setValue(moved);
+				distanceMoved = moved;
 			}
 		}
 
 		updateContraptionAnchors();
 		manageEntities(level);
-		return distanceMoved.getValue();
+		return distanceMoved;
+	}
+
+	private boolean handlePortal(Couple<TrackNodeLocation> nodes) {
+		for (DimensionalCarriageEntity dce : entities.values())
+			if (nodes.either(tnl -> tnl.equalsIgnoreDim(dce.pivot)))
+				return false;
+		if (entities.size() > 1) {
+			train.status.doublePortal();
+			return true;
+		}
+		return false;
 	}
 
 	public double getAnchorDiff() {

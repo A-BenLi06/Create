@@ -390,7 +390,9 @@ public class ScheduleRuntime {
 			tag.put("Schedule", schedule.write(registries));
 		NBTHelper.writeEnum(tag, "State", state);
 		tag.putIntArray("ConditionProgress", conditionProgress);
-		tag.put("ConditionContext", NBTHelper.writeCompoundList(conditionContext, CompoundTag::copy));
+		// SavedData serializes the returned tree synchronously, so the existing context tags can be
+		// referenced by the temporary output list without recursively cloning every nested tag.
+		tag.put("ConditionContext", NBTHelper.writeCompoundList(conditionContext, context -> context));
 		tag.putIntArray("TransitTimes", predictionTicks);
 		return tag;
 	}

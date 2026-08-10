@@ -49,6 +49,8 @@ public class CarriageBogey {
 	boolean isLeading;
 
 	public CompoundTag bogeyData;
+	private String cachedStyleId;
+	private BogeyStyle cachedStyle;
 
 	AbstractBogeyBlock<?> type;
 	boolean upsideDown;
@@ -212,9 +214,15 @@ public class CarriageBogey {
 	}
 
 	public BogeyStyle getStyle() {
+		String styleId = bogeyData.getString(BOGEY_STYLE_KEY);
+		if (cachedStyle != null && styleId.equals(cachedStyleId))
+			return cachedStyle;
+
+		cachedStyleId = styleId;
 		ResourceLocation location = NBTHelper.readResourceLocation(this.bogeyData, BOGEY_STYLE_KEY);
 		BogeyStyle style = AllBogeyStyles.BOGEY_STYLES.get(location);
-		return style != null ? style : AllBogeyStyles.STANDARD; // just for safety
+		cachedStyle = style != null ? style : AllBogeyStyles.STANDARD; // just for safety
+		return cachedStyle;
 	}
 
 	public BogeySize getSize() {

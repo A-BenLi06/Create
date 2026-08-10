@@ -102,3 +102,17 @@ reasoning and results rather than private chain-of-thought.
   `5F83D2B637A47F5BE2BB2B639EA67181CDB4D1BC345350D139AB544DBD2E72A5`; a clean rebuild after
   committing is required so the embedded Git hash identifies this versioning commit rather than
   the prior commit plus the `-modified` suffix.
+
+## 2026-08-10T21:04:26+08:00 — Derive the version from independent components
+
+- The first standardized configuration stored `mc1.21.1` inside `mod_version` while also retaining
+  `minecraft_version = 1.21.1`. Although its output was correct, a future Minecraft upgrade could
+  change one value without the other.
+- Restored `mod_version` to the upstream-only value `6.0.10`, retained the authoritative
+  `minecraft_version`, and added `modification_version = yunniverse-perf-v4`.
+- Gradle now constructs `performanceVersion` once from those three fields and supplies it to the
+  archive, generated Java build info, NeoForge metadata, publication display/version, and Git tag.
+- The externally visible version remains `6.0.10-mc1.21.1-yunniverse-perf-v4`; the change removes
+  duplicated version literals rather than renaming the artifact again.
+- `gradlew jar` completed with `BUILD SUCCESSFUL`; ZIP inspection reconfirmed the expected filename,
+  NeoForge version, and manifest `Implementation-Version` generated from the independent fields.

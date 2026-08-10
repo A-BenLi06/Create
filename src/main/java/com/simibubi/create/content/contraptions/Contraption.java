@@ -134,6 +134,7 @@ import net.neoforged.neoforge.registries.GameData;
 public abstract class Contraption {
 
 	public final CollisionList simplifiedEntityColliders = new CollisionList();
+	private boolean simplifiedEntityCollidersDirty;
 	public AbstractContraptionEntity entity;
 
 	public AABB bounds;
@@ -1433,6 +1434,7 @@ public abstract class Contraption {
 	}
 
 	public void invalidateColliders() {
+		simplifiedEntityCollidersDirty = false;
 		getContraptionWorld();
 		simplifiedEntityColliders.size = 0;
 
@@ -1450,6 +1452,14 @@ public abstract class Contraption {
 			populate.offsetZ = localPos.getZ();
 			collisionShape.forAllBoxes(populate);
 		}
+	}
+
+	/**
+	 * Defer an expensive full-contraption collision rebuild until collision data is actually read.
+	 * Multiple block-state updates received in the same tick are thereby coalesced into one rebuild.
+	 */
+	public void markCollidersDirty() {
+		simplifiedEntityCollidersDirty = true;
 	}
 
 	public static double getRadius(Iterable<? extends Vec3i> blocks, Axis axis) {
@@ -1496,6 +1506,8 @@ public abstract class Contraption {
 
 	@Nullable
 	public CollisionList getSimplifiedEntityColliders() {
+		if (simplifiedEntityCollidersDirty)
+			invalidateColliders();
 		return simplifiedEntityColliders;
 	}
 

@@ -116,3 +116,35 @@ reasoning and results rather than private chain-of-thought.
   duplicated version literals rather than renaming the artifact again.
 - `gradlew jar` completed with `BUILD SUCCESSFUL`; ZIP inspection reconfirmed the expected filename,
   NeoForge version, and manifest `Implementation-Version` generated from the independent fields.
+
+## 2026-08-20T15:35:00+08:00 — Restore deterministic station-door collision refresh
+
+### Evidence and root cause
+
+- The current server log contains no Create door exception. Static tracing shows station arrival
+  still reaches `SlidingDoorMovementBehaviour`, toggles both door-half block states, and sends the
+  changed states to tracking clients.
+- The v4 collision-coalescing optimization marked the carriage collider dirty but rebuilt it only
+  when a later collision consumer requested the cached list. A stationary train can have no such
+  read after arriving, so its closed-door collision shape could remain cached indefinitely even
+  though the door state had changed.
+- `CarriageContraptionEntity.setBlock` mirrors a door state into every present carriage entity, but
+  only the actor's contraption was previously marked dirty. This could leave another entity copy
+  with an inconsistent collision cache.
+
+### Change
+
+- Centralized collider invalidation in both contraption `setBlock` paths, so every dynamic block
+  state change and every present carriage entity copy is covered.
+- Added a deterministic end-of-contraption-tick flush. Multiple door-half updates in one tick still
+  coalesce into one full rebuild, while stationary trains cannot retain stale collision data.
+- Kept the on-read refresh as a defensive path for updates arriving outside the entity tick.
+- Removed the sliding-door-specific dirty mark because state mutation now owns invalidation.
+- Advanced the downstream iteration to `6.0.10-mc1.21.1-yunniverse-perf-v5`.
+
+### Expected result
+
+- A train arriving at a controlled station opens a passable doorway on both server and client.
+- Large and bidirectional arrivals retain the v4 coalescing benefit: at most one collider rebuild
+  per affected contraption entity per tick, rather than one rebuild per door half.
+- Compilation and runtime validation are recorded in the next timestamped entry after the build.

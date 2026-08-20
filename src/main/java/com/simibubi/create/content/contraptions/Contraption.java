@@ -1462,6 +1462,17 @@ public abstract class Contraption {
 		simplifiedEntityCollidersDirty = true;
 	}
 
+	/**
+	 * Rebuild collision data once after a batch of contraption block-state changes.
+	 * Keeping this separate from {@link #markCollidersDirty()} lets door halves and
+	 * carriage entity copies coalesce their updates without leaving a stationary
+	 * contraption with stale collision shapes indefinitely.
+	 */
+	public void refreshCollidersIfDirty() {
+		if (simplifiedEntityCollidersDirty)
+			invalidateColliders();
+	}
+
 	public static double getRadius(Iterable<? extends Vec3i> blocks, Axis axis) {
 		Axis axisA;
 		Axis axisB;
@@ -1506,8 +1517,7 @@ public abstract class Contraption {
 
 	@Nullable
 	public CollisionList getSimplifiedEntityColliders() {
-		if (simplifiedEntityCollidersDirty)
-			invalidateColliders();
+		refreshCollidersIfDirty();
 		return simplifiedEntityColliders;
 	}
 

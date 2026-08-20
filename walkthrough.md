@@ -161,3 +161,26 @@ reasoning and results rather than private chain-of-thought.
 - Artifact SHA-256: `598034A2E345191D3786C8315047DB4692E88023347E8168A0619ECFCB9E10DE`.
 - Dedicated-server startup and an in-game station-door test remain deployment checks; compilation
   alone cannot observe client door animation or passage through the rebuilt collider.
+
+## 2026-08-20T16:14:00+08:00 — Deploy and package the Create v5 fix
+
+- Replaced the active server and client-pack Create JAR with
+  `[自修改]create-6.0.10-mc1.21.1-yunniverse-perf-v5.jar`; the superseded v4 files were moved to
+  dated recovery directories rather than deleted.
+- Restarted the dedicated server. It reached `Done (6.326s)` and listened on port 25565. The
+  startup log identifies Create version `6.0.10-mc1.21.1-yunniverse-perf-v5` and commit
+  `228ab42faace3be776666a9cd019e155ff9b5303`; no startup error, duplicate mod ID, or dependency
+  failure was reported.
+- Deployed the paired Copycats rendering fix on both sides because the reported Copycat material
+  defect is client-rendering code, while Create's carriage collision state is authoritative on the
+  server and mirrored to clients.
+- Updated the client manifest and documentation, then packaged 38 active JARs as
+  `mods-1-21-b8-yuuni-optimized-fixes.zip` (562,390,276 bytes; SHA-256
+  `F15D1AD1FBF25072C338035B544E135A5A26826FAED80EC78B364610FF6DE109`). Every embedded JAR was
+  streamed through SHA-256 and matched the embedded 38-entry manifest; UTF-8 names and four
+  documentation entries were also verified.
+- The prior b7 bundle is retained as
+  `client-pack/archive/mods-1-21-b7-pre-create-copycats-fix.zip`.
+- Remaining acceptance test: drive a train into a scheduled station and verify door animation and
+  passage on a b8 client, including simultaneous arrival of two large trains. Dedicated-server
+  readiness proves load compatibility but cannot observe the client animation.

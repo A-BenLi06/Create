@@ -184,3 +184,21 @@ reasoning and results rather than private chain-of-thought.
 - Remaining acceptance test: drive a train into a scheduled station and verify door animation and
   passage on a b8 client, including simultaneous arrival of two large trains. Dedicated-server
   readiness proves load compatibility but cannot observe the client animation.
+
+## 2026-08-20T20:02:00+08:00 — Isolate the Create v5 station-door test
+
+- At the user's request, restored official Copycats+
+  `copycats-3.0.4+mc.1.21.1-neoforge.jar` on both the server and client while retaining Create
+  `6.0.10-mc1.21.1-yunniverse-perf-v5`. No Create source or artifact changed in this step.
+- The official Copycats+ JAR is byte-identical on both sides: 1,791,747 bytes, SHA-256
+  `8480E2A62EAA625F75776831C1D8A9EF3D77D2D816FA2E67566C6EC25BA745D1`. The customized Copycats+
+  build was moved into dated rollback directories and is not active.
+- Generated the Create-only control pack `mods-1-21-b9-create-v5-copycats-original.zip`
+  (562,387,101 bytes; SHA-256
+  `3113433F01DFF34A079D76E2C219628BB3138B5F01EBD44C2FD140DED62AF08B`). All 38 embedded JARs
+  matched the embedded manifest; official Copycats+ was present and the customized build absent.
+- The dedicated server loaded Create v5 commit `228ab42faace3be776666a9cd019e155ff9b5303` and official
+  Copycats+ `3.0.4+mc.1.21.1-neoforge`, reached `Done (7.462s)`, and listened on port 25565. The
+  world-version warning records the intentional Copycats+ downgrade; it is not a loader failure.
+- This deployment isolates the Create collider lifecycle change for the next in-game station-door
+  test. Copycats+ rendering behavior is explicitly outside this test pass.

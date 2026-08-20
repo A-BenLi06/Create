@@ -212,3 +212,52 @@ reasoning and results rather than private chain-of-thought.
 - Stream verification reconfirmed all 38 embedded JAR hashes and confirmed that packaged documents
   contain no stale b9 reference. Final size and SHA-256 are 562,387,115 bytes and
   `A6DEC1564A07350FDA58C1A12441D0397DD2A58C7BA2AE2AFA0A8FCC2B2E46D3`.
+
+## 2026-08-20T20:53:37+08:00 — Diagnose the remaining automatic train-door failure
+
+### Runtime evidence
+
+- The b8 control test used Create v5 with official Copycats+ 3.0.4. The player was connected from
+  `20:22:39+08:00` to `20:33:35+08:00`; the test window contains no Create exception and no
+  `Can't keep up!` warning. A separate Yuuniverse Economy date-parsing exception was emitted about
+  once per second and should be fixed independently, but it did not alter Create's door state.
+- The saved train nearest the player's logout position was approximately 31 blocks away. It had
+  three carriages, speed zero, a valid `currentStation`, 26 registered door actors, and no stalled
+  carriage. None of those actors persisted `Data.Open = true`: 13 were false and 13 had not yet
+  stored the key. This rules out client animation and collider refresh as the primary failure;
+  server-side `shouldOpen()` returned false before any door block-state mutation.
+- The train's station UUID is `920db7f2-f905-4bd3-a4b4-d46f8d7afb18`. Its active station block
+  entity has the same UUID at `(4836, 71, 2059)` and `DoorControl = ALL`, but the corresponding
+  `GlobalStation` in `create_tracks.dat` persisted `BlockEntityPos = (0, 0, 0)`. Door lookup
+  therefore queried the origin and returned no `DoorControlBehaviour`.
+- The corruption is systemic: 418 of 419 persisted Create stations have a zero block-entity
+  position. Including observers and Steam 'n' Rails single-block edge points, 522 of 523 persisted
+  positions are zero; the only nonzero station was created or refreshed after migration.
+
+### Migration and source cause
+
+- The imported 1.20.1 source data contains the same station UUID with the correct
+  `TilePos = (4836, 71, 2059)` and `TileDimension = 0`. Across that file, 526 single-block edge
+  points use the legacy `TilePos`/`TileDimension` keys and none use the 1.21.1 names.
+- The 1.21.1 `SingleBlockEntityEdgePoint.read` path reads only `BlockEntityPos` and
+  `BlockEntityDimension`. Its backwards-compatible block-position decoder handles the old value
+  encoding only when the new key exists; it does not fall back to the legacy key names. The first
+  1.21.1 save consequently rewrote each missing position as `(0, 0, 0)`.
+- `TrackTargetingBehaviour.createEdgePoint` returns an already registered point by UUID without
+  calling `blockEntityAdded`. Loading the real station block entity therefore does not repair the
+  stale global position, even though the authoritative current-world coordinate is available.
+- Read-only searches of the official Create issue and commit history found no later fix or issue
+  matching these legacy key names. Official commit `70933fea` addresses old block-position value
+  encoding, but not the `TilePos` to `BlockEntityPos` field rename.
+
+### Correct repair boundary
+
+- Add legacy-key fallback when reading `SingleBlockEntityEdgePoint`, preserving compatibility for
+  future 1.20.1 imports.
+- When `TrackTargetingBehaviour` resolves an existing single-block point by UUID, refresh its
+  position and dimension from the authoritative loaded block entity and mark track data dirty only
+  when the location changed. This repairs the current already-zeroed world lazily as station chunks
+  load and avoids guessing coordinates or depending on an old backup.
+- No source or runtime fix was applied in this diagnostic entry. The earlier collider coalescing
+  remains valid as a post-toggle performance optimization, but it cannot make a door open when
+  station-controller lookup fails before the toggle.

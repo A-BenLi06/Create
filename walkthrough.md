@@ -193,12 +193,22 @@ reasoning and results rather than private chain-of-thought.
 - The official Copycats+ JAR is byte-identical on both sides: 1,791,747 bytes, SHA-256
   `8480E2A62EAA625F75776831C1D8A9EF3D77D2D816FA2E67566C6EC25BA745D1`. The customized Copycats+
   build was moved into dated rollback directories and is not active.
-- Generated the Create-only control pack `mods-1-21-b9-create-v5-copycats-original.zip`
-  (562,387,101 bytes; SHA-256
-  `3113433F01DFF34A079D76E2C219628BB3138B5F01EBD44C2FD140DED62AF08B`). All 38 embedded JARs
+- Generated the Create-only control pack `mods-1-21-b8-create-v5-copycats-original.zip`
+  (562,387,115 bytes; SHA-256
+  `A6DEC1564A07350FDA58C1A12441D0397DD2A58C7BA2AE2AFA0A8FCC2B2E46D3`). All 38 embedded JARs
   matched the embedded manifest; official Copycats+ was present and the customized build absent.
 - The dedicated server loaded Create v5 commit `228ab42faace3be776666a9cd019e155ff9b5303` and official
   Copycats+ `3.0.4+mc.1.21.1-neoforge`, reached `Done (7.462s)`, and listened on port 25565. The
   world-version warning records the intentional Copycats+ downgrade; it is not a loader failure.
 - This deployment isolates the Create collider lifecycle change for the next in-game station-door
   test. Copycats+ rendering behavior is explicitly outside this test pass.
+
+## 2026-08-20T20:09:17+08:00 — Rename the Create-only control pack to b8
+
+- Renamed the active control-test revision from b9 to b8 at the user's request. No mod JAR, server
+  configuration, or Create source changed, so the running server did not require another restart.
+- Rebuilt `mods-1-21-b8-create-v5-copycats-original.zip` so its embedded README and changelog use
+  the same b8 identity. The prior outer-name archive remains recoverable under `client-pack/archive`.
+- Stream verification reconfirmed all 38 embedded JAR hashes and confirmed that packaged documents
+  contain no stale b9 reference. Final size and SHA-256 are 562,387,115 bytes and
+  `A6DEC1564A07350FDA58C1A12441D0397DD2A58C7BA2AE2AFA0A8FCC2B2E46D3`.

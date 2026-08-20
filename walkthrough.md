@@ -148,3 +148,16 @@ reasoning and results rather than private chain-of-thought.
 - Large and bidirectional arrivals retain the v4 coalescing benefit: at most one collider rebuild
   per affected contraption entity per tick, rather than one rebuild per door half.
 - Compilation and runtime validation are recorded in the next timestamped entry after the build.
+
+## 2026-08-20T16:01:00+08:00 — Validate the Create v5 artifact
+
+- `gradlew compileJava --no-daemon` completed with `BUILD SUCCESSFUL`. Its 33 warnings are existing
+  removal/deprecation notices; the collider lifecycle changes introduced no compile error.
+- A post-commit `gradlew jar --no-daemon` completed with `BUILD SUCCESSFUL` and produced
+  `create-6.0.10-mc1.21.1-yunniverse-perf-v5.jar` (19,137,611 bytes).
+- ZIP metadata reports NeoForge `modId = "create"`, version
+  `6.0.10-mc1.21.1-yunniverse-perf-v5`, and matching manifest specification and implementation
+  versions.
+- Artifact SHA-256: `598034A2E345191D3786C8315047DB4692E88023347E8168A0619ECFCB9E10DE`.
+- Dedicated-server startup and an in-game station-door test remain deployment checks; compilation
+  alone cannot observe client door animation or passage through the rebuilt collider.

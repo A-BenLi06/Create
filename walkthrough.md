@@ -359,3 +359,31 @@ reasoning and results rather than private chain-of-thought.
 - The live file will be copied to a timestamped recovery directory before an atomic NBT rewrite.
   Startup and a second NBT audit remain required before the repaired world is handed off for the
   station-door performance test.
+
+## 2026-08-21T18:14:33+08:00 — Build and apply the coordinate recovery
+
+### Build verification
+
+- Built `create-6.0.10-mc1.21.1-yunniverse-perf-v6.jar` with
+  `gradlew jar --no-daemon`; the build completed successfully. The remaining compiler warnings are
+  pre-existing upstream deprecation/removal warnings.
+- The artifact SHA-256 is
+  `2519858C51FD825BA1D475C177551AAD1CFA33D38ECEB55EE19837912C4FC7CC`.
+- Confirmed the artifact contains the repaired `SingleBlockEntityEdgePoint`,
+  `TrackTargetingBehaviour`, and defensive `ScheduleRuntime` classes. Its metadata reports
+  `6.0.10-mc1.21.1-yunniverse-perf-v6` and source commit `8ed9c36`.
+
+### Existing-world recovery result
+
+- Stopped the server cleanly before editing `uDays/data/create_tracks.dat`.
+- Backed up the untouched live file to
+  `migration-backups/20260821-181300-create-station-coordinate-restore/create_tracks.dat`; its
+  SHA-256 is `9B38A5A55469196F62E050EBFAB531D398DF60D046AC0F67CEB7166164B5507E`.
+- Matched 522 current edge points to the retained 1.20.1 data by UUID and atomically restored their
+  positions and dimension-palette indexes. A post-write NBT reload found 522 matches, zero pending
+  changes, and zero remaining origin positions among those matches.
+- The repaired live file SHA-256 before restart is
+  `2E221F27B2F23C6E82600D13DE21B3319E363DF52D3699D9715563C5FA70BF8B`.
+- Independently verified station UUID `920db7f2-f905-4bd3-a4b4-d46f8d7afb18` now resolves to
+  block position `(4836, 71, 2059)` in dimension-palette entry `0`, matching its loaded station
+  block entity. This is the concrete door test location identified during diagnosis.

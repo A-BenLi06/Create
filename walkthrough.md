@@ -261,3 +261,74 @@ reasoning and results rather than private chain-of-thought.
 - No source or runtime fix was applied in this diagnostic entry. The earlier collider coalescing
   remains valid as a post-toggle performance optimization, but it cannot make a door open when
   station-controller lookup fails before the toggle.
+
+## 2026-08-21T16:58:50+08:00 — Prepare upstream Create performance contributions
+
+### Contribution boundary
+
+- Rebased each contribution independently onto the official
+  `Creators-of-Create/Create:mc1.21.1/dev` head `0924e93`. The upstream branches contain no
+  Yunniverse version strings, deployment notes, client-pack metadata, world-specific repair code,
+  or prebuilt artifacts.
+- Used separate branches so persistence repair, navigation retry policy, and collision-cache
+  lifecycle can be reviewed and reverted independently.
+- Kept all pull requests as drafts. GitHub reports each as mergeable; the repository has not
+  attached automated checks at the time of this entry.
+
+### Schedule condition-state persistence
+
+- Existing issue: https://github.com/Creators-of-Create/Create/issues/7633
+- Draft PR: https://github.com/Creators-of-Create/Create/pull/10701
+- Branch: `A-BenLi06:perf/schedule-runtime-state`
+- `conditionProgress` and `conditionContext` are meaningful only for the active post-transit
+  condition columns. The patch derives that expected count, trims surplus entries, fills missing
+  entries, clamps progress, and performs the same normalization while loading and before saving.
+- The persistent cost changes from O(historical or corrupt context count) to O(active condition
+  columns). In the affected 102-train world this reduced 4,838,253 context entries to 7. The prior
+  `create_tracks.dat` main-thread save took 3.823 seconds; two observed autosaves after repair
+  produced no matching `Can't keep up!` warning.
+- A previously tested micro-optimization that inserted runtime `CompoundTag` instances directly
+  into the save tree was deliberately removed before publication. Save I/O can outlive NBT-tree
+  construction, so retaining `CompoundTag::copy` avoids aliasing mutable runtime state. Once the
+  list is bounded to single digits, that copy is not a material cost.
+
+### Failed scheduled-navigation backoff
+
+- New issue: https://github.com/Creators-of-Create/Create/issues/10700
+- Draft PR: https://github.com/Creators-of-Create/Create/pull/10702
+- Branch: `A-BenLi06:perf/navigation-failure-backoff`
+- The fixed 40-tick retry cadence can synchronize many unreachable trains after a restart or
+  server stall. Each synchronized attempt may traverse a large part of the same track graph.
+- Consecutive failures now use 40, 80, 160 and 320 tick base intervals plus a deterministic
+  0-39 tick UUID offset. Success, a normal cooldown, and runtime reset clear the failure count.
+- A persistently unreachable train falls from 30 searches per minute to approximately 3-4 at the
+  cap, while deterministic jitter distributes different trains across server ticks. Path choice
+  and successful navigation are unchanged.
+
+### Batched contraption collider refresh
+
+- Existing reports:
+  https://github.com/Creators-of-Create/Create/issues/6902,
+  https://github.com/Creators-of-Create/Create/issues/9026, and
+  https://github.com/Minecraft-Transit-Railway/Minecraft-Transit-Railway/issues/1019
+- Draft PR: https://github.com/Creators-of-Create/Create/pull/10703
+- Branch: `A-BenLi06:perf/coalesce-door-collider-refresh`
+- Official commit `8f30c2c` already replaced collision AABB objects with dense structure-of-arrays
+  storage. The remaining issue is multiplicity: every animated door can still initiate another
+  scan over every contraption block during the same entity tick.
+- Block changes now mark collider data dirty. The entity performs one deterministic end-of-tick
+  rebuild; a collision read before that flush rebuilds immediately. Carriage copies in every
+  loaded dimension receive the same dirty mark.
+- For D door updates on a B-block contraption, the common path changes from O(D × B) shape work to
+  O(D + B), while direct immediate invalidation remains available to other callers.
+
+### Validation and deferred work
+
+- All three final branches passed `gradlew compileJava --no-daemon` on Java 24.0.2. The warnings
+  are upstream deprecation/removal warnings; no new compilation error was introduced.
+- The broad `841187d` allocation patch was not submitted upstream as one PR. It combines selector
+  caching, listener caching, navigation-list reuse, and collision-loop refactoring, and part of its
+  collision premise has been superseded by the official dense-collider rewrite. Those changes need
+  isolated profiles and individual semantic tests before upstream publication.
+- The legacy `TilePos` to `BlockEntityPos` station migration defect is correctness work and was
+  intentionally excluded from all performance PRs.

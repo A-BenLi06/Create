@@ -414,3 +414,8 @@ reasoning and results rather than private chain-of-thought.
   `5602A16796957CB5C7FB829C10C6B54BF9D228931C7680636710B6A60D92822E`.
 - Extracted-artifact inspection confirmed matching specification/implementation versions and no
   removed downstream branding token in the JAR contents.
+- Renamed the maintained branch to `perf/optimized-build-1.21.1`, pushed and commit-verified the
+  replacement, then deleted the old remote branch. The maintained 1.20.1 branch was cleaned and
+  renamed to `perf/optimized-build-1.20.1` with the same replacement-first sequence.
+- Updated the current GitHub release to tag `create-6.0.10-performance-v6` with the neutral v6 JAR,
+  and retained a neutral 1.20.1 release. Superseded branded releases and tags were removed.

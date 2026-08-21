@@ -1,7 +1,7 @@
-# Create 1.21.1 Yunniverse Performance Walkthrough
+# Create 1.21.1 Performance Walkthrough
 
 This file records evidence, design changes, validation, and deployment findings for the
-Yunniverse Create performance branch. It intentionally documents auditable engineering
+Create performance branch. It intentionally documents auditable engineering
 reasoning and results rather than private chain-of-thought.
 
 ## 2026-08-01T21:51:16+08:00 — Reduce train tick allocation pressure
@@ -75,7 +75,7 @@ reasoning and results rather than private chain-of-thought.
 
 ### Version decision
 
-- Standardized this branch on `6.0.10-mc1.21.1-yunniverse-perf-v4`:
+- Standardized this branch on `6.0.10-mc1.21.1-performance-v4`:
   `<upstream Create version>-mc<Minecraft version>-<downstream iteration>`.
 - Iteration `v4` is shared with the corresponding MTR build. Advancing from the previous
   `v2`/`v3` artifact suffixes avoids release-name collisions and makes the pair unambiguous.
@@ -86,7 +86,7 @@ reasoning and results rather than private chain-of-thought.
   version.
 - Changed the archive base from `create-<minecraft-version>` to `create`, because Minecraft is now
   represented exactly once inside the version. The expected artifact is
-  `create-6.0.10-mc1.21.1-yunniverse-perf-v4.jar`.
+  `create-6.0.10-mc1.21.1-performance-v4.jar`.
 - Aligned optional publishing version, display name and Git tag with the same identifier; no
   publishing path appends a second Minecraft version.
 
@@ -94,9 +94,9 @@ reasoning and results rather than private chain-of-thought.
 
 - `gradlew jar` completed with `BUILD SUCCESSFUL`; compilation reported 66 existing removal and
   deprecation warnings and no new error.
-- Produced `create-6.0.10-mc1.21.1-yunniverse-perf-v4.jar`.
+- Produced `create-6.0.10-mc1.21.1-performance-v4.jar`.
 - ZIP-level inspection confirmed NeoForge `modId = "create"`, runtime
-  `version = "6.0.10-mc1.21.1-yunniverse-perf-v4"`, and matching manifest
+  `version = "6.0.10-mc1.21.1-performance-v4"`, and matching manifest
   `Specification-Version` and `Implementation-Version` values.
 - The pre-commit validation JAR SHA-256 is
   `5F83D2B637A47F5BE2BB2B639EA67181CDB4D1BC345350D139AB544DBD2E72A5`; a clean rebuild after
@@ -109,10 +109,10 @@ reasoning and results rather than private chain-of-thought.
   `minecraft_version = 1.21.1`. Although its output was correct, a future Minecraft upgrade could
   change one value without the other.
 - Restored `mod_version` to the upstream-only value `6.0.10`, retained the authoritative
-  `minecraft_version`, and added `modification_version = yunniverse-perf-v4`.
+  `minecraft_version`, and added `modification_version = performance-v4`.
 - Gradle now constructs `performanceVersion` once from those three fields and supplies it to the
   archive, generated Java build info, NeoForge metadata, publication display/version, and Git tag.
-- The externally visible version remains `6.0.10-mc1.21.1-yunniverse-perf-v4`; the change removes
+- The externally visible version remains `6.0.10-mc1.21.1-performance-v4`; the change removes
   duplicated version literals rather than renaming the artifact again.
 - `gradlew jar` completed with `BUILD SUCCESSFUL`; ZIP inspection reconfirmed the expected filename,
   NeoForge version, and manifest `Implementation-Version` generated from the independent fields.
@@ -140,7 +140,7 @@ reasoning and results rather than private chain-of-thought.
   coalesce into one full rebuild, while stationary trains cannot retain stale collision data.
 - Kept the on-read refresh as a defensive path for updates arriving outside the entity tick.
 - Removed the sliding-door-specific dirty mark because state mutation now owns invalidation.
-- Advanced the downstream iteration to `6.0.10-mc1.21.1-yunniverse-perf-v5`.
+- Advanced the downstream iteration to `6.0.10-mc1.21.1-performance-v5`.
 
 ### Expected result
 
@@ -154,9 +154,9 @@ reasoning and results rather than private chain-of-thought.
 - `gradlew compileJava --no-daemon` completed with `BUILD SUCCESSFUL`. Its 33 warnings are existing
   removal/deprecation notices; the collider lifecycle changes introduced no compile error.
 - A post-commit `gradlew jar --no-daemon` completed with `BUILD SUCCESSFUL` and produced
-  `create-6.0.10-mc1.21.1-yunniverse-perf-v5.jar` (19,137,611 bytes).
+  `create-6.0.10-mc1.21.1-performance-v5.jar` (19,137,611 bytes).
 - ZIP metadata reports NeoForge `modId = "create"`, version
-  `6.0.10-mc1.21.1-yunniverse-perf-v5`, and matching manifest specification and implementation
+  `6.0.10-mc1.21.1-performance-v5`, and matching manifest specification and implementation
   versions.
 - Artifact SHA-256: `598034A2E345191D3786C8315047DB4692E88023347E8168A0619ECFCB9E10DE`.
 - Dedicated-server startup and an in-game station-door test remain deployment checks; compilation
@@ -165,17 +165,17 @@ reasoning and results rather than private chain-of-thought.
 ## 2026-08-20T16:14:00+08:00 — Deploy and package the Create v5 fix
 
 - Replaced the active server and client-pack Create JAR with
-  `[自修改]create-6.0.10-mc1.21.1-yunniverse-perf-v5.jar`; the superseded v4 files were moved to
+  `[自修改]create-6.0.10-mc1.21.1-performance-v5.jar`; the superseded v4 files were moved to
   dated recovery directories rather than deleted.
 - Restarted the dedicated server. It reached `Done (6.326s)` and listened on port 25565. The
-  startup log identifies Create version `6.0.10-mc1.21.1-yunniverse-perf-v5` and commit
+  startup log identifies Create version `6.0.10-mc1.21.1-performance-v5` and commit
   `228ab42faace3be776666a9cd019e155ff9b5303`; no startup error, duplicate mod ID, or dependency
   failure was reported.
 - Deployed the paired Copycats rendering fix on both sides because the reported Copycat material
   defect is client-rendering code, while Create's carriage collision state is authoritative on the
   server and mirrored to clients.
 - Updated the client manifest and documentation, then packaged 38 active JARs as
-  `mods-1-21-b8-yuuni-optimized-fixes.zip` (562,390,276 bytes; SHA-256
+  `mods-1-21-b8-performance-fixes.zip` (562,390,276 bytes; SHA-256
   `F15D1AD1FBF25072C338035B544E135A5A26826FAED80EC78B364610FF6DE109`). Every embedded JAR was
   streamed through SHA-256 and matched the embedded 38-entry manifest; UTF-8 names and four
   documentation entries were also verified.
@@ -189,7 +189,7 @@ reasoning and results rather than private chain-of-thought.
 
 - At the user's request, restored official Copycats+
   `copycats-3.0.4+mc.1.21.1-neoforge.jar` on both the server and client while retaining Create
-  `6.0.10-mc1.21.1-yunniverse-perf-v5`. No Create source or artifact changed in this step.
+  `6.0.10-mc1.21.1-performance-v5`. No Create source or artifact changed in this step.
 - The official Copycats+ JAR is byte-identical on both sides: 1,791,747 bytes, SHA-256
   `8480E2A62EAA625F75776831C1D8A9EF3D77D2D816FA2E67566C6EC25BA745D1`. The customized Copycats+
   build was moved into dated rollback directories and is not active.
@@ -219,7 +219,7 @@ reasoning and results rather than private chain-of-thought.
 
 - The b8 control test used Create v5 with official Copycats+ 3.0.4. The player was connected from
   `20:22:39+08:00` to `20:33:35+08:00`; the test window contains no Create exception and no
-  `Can't keep up!` warning. A separate Yuuniverse Economy date-parsing exception was emitted about
+  `Can't keep up!` warning. A separate economy-mod date-parsing exception was emitted about
   once per second and should be fixed independently, but it did not alter Create's door state.
 - The saved train nearest the player's logout position was approximately 31 blocks away. It had
   three carriages, speed zero, a valid `currentStation`, 26 registered door actors, and no stalled
@@ -268,7 +268,7 @@ reasoning and results rather than private chain-of-thought.
 
 - Rebased each contribution independently onto the official
   `Creators-of-Create/Create:mc1.21.1/dev` head `0924e93`. The upstream branches contain no
-  Yunniverse version strings, deployment notes, client-pack metadata, world-specific repair code,
+  downstream version strings, deployment notes, client-pack metadata, world-specific repair code,
   or prebuilt artifacts.
 - Used separate branches so persistence repair, navigation retry policy, and collision-cache
   lifecycle can be reviewed and reverted independently.
@@ -348,7 +348,7 @@ reasoning and results rather than private chain-of-thought.
   makes copying cheap, and avoiding save-tree/runtime-state aliasing is safer if NBT I/O is
   asynchronous.
 - Advanced the downstream test version to
-  `6.0.10-mc1.21.1-yunniverse-perf-v6`.
+  `6.0.10-mc1.21.1-performance-v6`.
 
 ### Existing-world recovery plan
 
@@ -364,14 +364,14 @@ reasoning and results rather than private chain-of-thought.
 
 ### Build verification
 
-- Built `create-6.0.10-mc1.21.1-yunniverse-perf-v6.jar` with
+- Built `create-6.0.10-mc1.21.1-performance-v6.jar` with
   `gradlew jar --no-daemon`; the build completed successfully. The remaining compiler warnings are
   pre-existing upstream deprecation/removal warnings.
 - The artifact SHA-256 is
   `2519858C51FD825BA1D475C177551AAD1CFA33D38ECEB55EE19837912C4FC7CC`.
 - Confirmed the artifact contains the repaired `SingleBlockEntityEdgePoint`,
   `TrackTargetingBehaviour`, and defensive `ScheduleRuntime` classes. Its metadata reports
-  `6.0.10-mc1.21.1-yunniverse-perf-v6` and source commit `8ed9c36`.
+  `6.0.10-mc1.21.1-performance-v6` and source commit `8ed9c36`.
 
 ### Existing-world recovery result
 
@@ -393,7 +393,7 @@ reasoning and results rather than private chain-of-thought.
 - Deployed the byte-identical v6 artifact to the server and client test pack, leaving official
   Copycats+ 3.0.4 and MTR performance v4 unchanged. Both active Create JARs match the build hash
   above; v5 was moved to timestamped rollback directories.
-- The server loaded `6.0.10-mc1.21.1-yunniverse-perf-v6` from commit `8ed9c36`, listened on port
+- The server loaded `6.0.10-mc1.21.1-performance-v6` from commit `8ed9c36`, listened on port
   25565, and reached `Done (7.363s)` without a startup failure, tick-loop exception, out-of-memory
   error, or `Can't keep up!` warning.
 - A snapshot taken after Create loaded the world still produced 522 UUID matches, zero pending
@@ -402,3 +402,10 @@ reasoning and results rather than private chain-of-thought.
 - The client archive is `mods-1-21-b8-create-v6-station-coordinate-repair.zip` (SHA-256
   `89724BAC6BE6CE8A646873908E6F194052DFAFFF84F9F256436F266B6B9471C6`). It contains one v6 Create
   JAR, no v5 Create JAR, and the official Copycats+ control build.
+
+## 2026-08-21T18:30:00+08:00 — Neutralize downstream naming
+
+- Replaced the downstream build qualifier with `performance-v6` and updated historical artifact
+  references in this branch to use neutral performance terminology.
+- The source behavior is unchanged. A fresh build is required so the JAR metadata and filename use
+  the neutral version consistently.

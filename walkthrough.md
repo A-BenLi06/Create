@@ -409,3 +409,8 @@ reasoning and results rather than private chain-of-thought.
   references in this branch to use neutral performance terminology.
 - The source behavior is unchanged. A fresh build is required so the JAR metadata and filename use
   the neutral version consistently.
+- `gradlew jar --no-daemon` completed successfully and produced
+  `create-6.0.10-mc1.21.1-performance-v6.jar` with SHA-256
+  `5602A16796957CB5C7FB829C10C6B54BF9D228931C7680636710B6A60D92822E`.
+- Extracted-artifact inspection confirmed matching specification/implementation versions and no
+  removed downstream branding token in the JAR contents.

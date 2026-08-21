@@ -387,3 +387,18 @@ reasoning and results rather than private chain-of-thought.
 - Independently verified station UUID `920db7f2-f905-4bd3-a4b4-d46f8d7afb18` now resolves to
   block position `(4836, 71, 2059)` in dimension-palette entry `0`, matching its loaded station
   block entity. This is the concrete door test location identified during diagnosis.
+
+### Controlled startup verification
+
+- Deployed the byte-identical v6 artifact to the server and client test pack, leaving official
+  Copycats+ 3.0.4 and MTR performance v4 unchanged. Both active Create JARs match the build hash
+  above; v5 was moved to timestamped rollback directories.
+- The server loaded `6.0.10-mc1.21.1-yunniverse-perf-v6` from commit `8ed9c36`, listened on port
+  25565, and reached `Done (7.363s)` without a startup failure, tick-loop exception, out-of-memory
+  error, or `Can't keep up!` warning.
+- A snapshot taken after Create loaded the world still produced 522 UUID matches, zero pending
+  repairs, and zero origin positions. The known station remained `(4836, 71, 2059)` in dimension
+  entry `0`; loading did not clear the restored data.
+- The client archive is `mods-1-21-b8-create-v6-station-coordinate-repair.zip` (SHA-256
+  `89724BAC6BE6CE8A646873908E6F194052DFAFFF84F9F256436F266B6B9471C6`). It contains one v6 Create
+  JAR, no v5 Create JAR, and the official Copycats+ control build.

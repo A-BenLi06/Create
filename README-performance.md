@@ -1,4 +1,4 @@
-# Create — Yunniverse Performance Build (Forge 1.20.1)
+# Create — Performance Build (Forge 1.20.1)
 
 *[English](#english) · [中文](#中文)*
 
@@ -6,19 +6,19 @@
 
 ## English
 
-Unofficial performance build of Create 6.0.8 for Minecraft 1.20.1 / Forge, maintained for the
-yuuniverse server. One commit on top of upstream `mc1.20.1/dev`, removing per-tick allocation from
+Unofficial performance build of Create 6.0.8 for Minecraft 1.20.1 / Forge. One commit on top of
+upstream `mc1.20.1/dev` removes per-tick allocation from
 train simulation. **No behaviour changes are intended** — trains route, collide, and signal exactly
 as they do in stock Create.
 
 - **Base**: upstream `mc1.20.1/dev` @ `5881242` (Create 6.0.8, Forge 47.1.33, MC 1.20.1)
-- **Branch**: `perf/yunniverse-server-1.20.1`
-- **Download**: [Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-yunniverse-perf-v1)
-- **1.21.1 equivalent**: branch `perf/yunniverse-server`
+- **Branch**: `perf/optimized-build-1.20.1`
+- **Download**: [Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-performance-v1)
+- **1.21.1 equivalent**: branch `perf/optimized-build-1.21.1`
 
 ### Install
 
-1. Download `create-1.20.1-6.0.8-yunniverse-perf.jar` from the release page.
+1. Download `create-1.20.1-6.0.8-performance.jar` from the release page.
 2. **Back up your world.**
 3. Remove the official `create-1.20.1-6.0.8.jar` from `mods/`, then drop this jar in.
    Never keep both — Forge will refuse to start, or worse, load the wrong one.
@@ -39,11 +39,11 @@ sha256  48bc811bbda2dce00053d322383a9b17cb70c4495517dd608dcc5731b0bbef05
 
 ```bash
 # Linux / macOS
-sha256sum create-1.20.1-6.0.8-yunniverse-perf.jar
+sha256sum create-1.20.1-6.0.8-performance.jar
 ```
 ```powershell
 # Windows
-Get-FileHash -Algorithm SHA256 create-1.20.1-6.0.8-yunniverse-perf.jar
+Get-FileHash -Algorithm SHA256 create-1.20.1-6.0.8-performance.jar
 ```
 
 ### What changed
@@ -61,7 +61,7 @@ runs every tick, for every carriage.
 ### Building from source
 
 ```bash
-git clone -b perf/yunniverse-server-1.20.1 https://github.com/A-BenLi06/Create.git
+git clone -b perf/optimized-build-1.20.1 https://github.com/A-BenLi06/Create.git
 cd Create
 ./gradlew assemble -x javadoc -x javadocJar
 # output: build/libs/create-1.20.1-6.0.8.jar
@@ -83,18 +83,18 @@ changes, and it does not affect the mod jar.
 
 ## 中文
 
-面向 yuuniverse 服务器维护的 Create 6.0.8 非官方性能版本，对应 Minecraft 1.20.1 / Forge。
+Create 6.0.8 非官方性能版本，对应 Minecraft 1.20.1 / Forge。
 在上游 `mc1.20.1/dev` 基础上加了一个提交，用于消除列车模拟中每 tick 的对象分配。
 **不改变任何游戏行为** —— 寻路、碰撞、信号逻辑与原版完全一致。
 
 - **基线**：上游 `mc1.20.1/dev` @ `5881242`（Create 6.0.8、Forge 47.1.33、MC 1.20.1）
-- **分支**：`perf/yunniverse-server-1.20.1`
-- **下载**：[Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-yunniverse-perf-v1)
-- **1.21.1 对应版本**：分支 `perf/yunniverse-server`
+- **分支**：`perf/optimized-build-1.20.1`
+- **下载**：[Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-performance-v1)
+- **1.21.1 对应版本**：分支 `perf/optimized-build-1.21.1`
 
 ### 安装
 
-1. 从 release 页面下载 `create-1.20.1-6.0.8-yunniverse-perf.jar`。
+1. 从 release 页面下载 `create-1.20.1-6.0.8-performance.jar`。
 2. **先备份存档。**
 3. 删除 `mods/` 里官方的 `create-1.20.1-6.0.8.jar`，再放入本 jar。
    **不要两个同时存在** —— Forge 会启动失败，或加载到错误的那个。
@@ -113,11 +113,11 @@ sha256  48bc811bbda2dce00053d322383a9b17cb70c4495517dd608dcc5731b0bbef05
 
 ```bash
 # Linux / macOS
-sha256sum create-1.20.1-6.0.8-yunniverse-perf.jar
+sha256sum create-1.20.1-6.0.8-performance.jar
 ```
 ```powershell
 # Windows
-Get-FileHash -Algorithm SHA256 create-1.20.1-6.0.8-yunniverse-perf.jar
+Get-FileHash -Algorithm SHA256 create-1.20.1-6.0.8-performance.jar
 ```
 
 ### 改了什么
@@ -134,7 +134,7 @@ Get-FileHash -Algorithm SHA256 create-1.20.1-6.0.8-yunniverse-perf.jar
 ### 从源码构建
 
 ```bash
-git clone -b perf/yunniverse-server-1.20.1 https://github.com/A-BenLi06/Create.git
+git clone -b perf/optimized-build-1.20.1 https://github.com/A-BenLi06/Create.git
 cd Create
 ./gradlew assemble -x javadoc -x javadocJar
 # 产物：build/libs/create-1.20.1-6.0.8.jar

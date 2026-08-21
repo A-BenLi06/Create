@@ -1,18 +1,18 @@
-> ## Yunniverse Performance Build — Forge 1.20.1
+> ## Performance Build — Forge 1.20.1
 >
 > **This branch is not upstream Create.** It is `mc1.20.1/dev` plus one commit that removes
 > per-tick allocation from train simulation. Behaviour is unchanged.
-> Prebuilt jar: **[Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-yunniverse-perf-v1)**
-> · Details: **[`README-yunniverse-perf.md`](README-yunniverse-perf.md)**
+> Prebuilt jar: **[Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-performance-v1)**
+> · Details: **[`README-performance.md`](README-performance.md)**
 >
 > **本分支不是 Create 上游。** 它是 `mc1.20.1/dev` 加一个提交，用于消除列车模拟中每 tick 的对象分配，行为不变。
-> 预编译 jar 见 **[Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-yunniverse-perf-v1)**
-> · 详细说明见 **[`README-yunniverse-perf.md`](README-yunniverse-perf.md)**
+> 预编译 jar 见 **[Releases](https://github.com/A-BenLi06/Create/releases/tag/create-6.0.8-1.20.1-performance-v1)**
+> · 详细说明见 **[`README-performance.md`](README-performance.md)**
 >
 > ### Install / 安装
 >
-> 1. Download `create-1.20.1-6.0.8-yunniverse-perf.jar` from the release above.
->    从上面的 release 下载 `create-1.20.1-6.0.8-yunniverse-perf.jar`。
+> 1. Download `create-1.20.1-6.0.8-performance.jar` from the release above.
+>    从上面的 release 下载 `create-1.20.1-6.0.8-performance.jar`。
 > 2. **Back up your world first.** 先备份存档。
 > 3. Delete the original `create-1.20.1-6.0.8.jar` from `mods/` and drop this one in.
 >    删除 `mods/` 里原来的 `create-1.20.1-6.0.8.jar`，放入本 jar。

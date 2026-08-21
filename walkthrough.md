@@ -332,3 +332,30 @@ reasoning and results rather than private chain-of-thought.
   isolated profiles and individual semantic tests before upstream publication.
 - The legacy `TilePos` to `BlockEntityPos` station migration defect is correctness work and was
   intentionally excluded from all performance PRs.
+
+## 2026-08-21T18:07:04+08:00 — Restore migrated single-block edge-point coordinates
+
+### Source repair
+
+- `SingleBlockEntityEdgePoint.read` now falls back from the 1.21.1
+  `BlockEntityPos`/`BlockEntityDimension` keys to the 1.20.1
+  `TilePos`/`TileDimension` keys. New saves continue to write only the current schema.
+- When `TrackTargetingBehaviour` resolves an existing point by UUID, the server compares its
+  persisted location with the authoritative loaded block entity. A mismatch refreshes the point,
+  marks railway data dirty, queues a point sync, and notifies the block entity. Matching points
+  take the original no-op fast path.
+- Restored defensive `CompoundTag::copy` behavior for schedule saves. The bounded condition list
+  makes copying cheap, and avoiding save-tree/runtime-state aliasing is safer if NBT I/O is
+  asynchronous.
+- Advanced the downstream test version to
+  `6.0.10-mc1.21.1-yunniverse-perf-v6`.
+
+### Existing-world recovery plan
+
+- The retained 1.20.1 source file contains 526 UUID-addressed `TilePos` records.
+- A dry run against the stopped live world matched 522 current single-block edge points. All 522
+  matched records currently had `BlockEntityPos = (0, 0, 0)`, and all are recoverable by UUID;
+  the projected post-repair zero count for matched points is zero.
+- The live file will be copied to a timestamped recovery directory before an atomic NBT rewrite.
+  Startup and a second NBT audit remain required before the repaired world is handed off for the
+  station-door performance test.

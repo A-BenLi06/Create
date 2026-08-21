@@ -14,6 +14,11 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 public abstract class SingleBlockEntityEdgePoint extends TrackEdgePoint {
 
+	private static final String BLOCK_ENTITY_POSITION = "BlockEntityPos";
+	private static final String BLOCK_ENTITY_DIMENSION = "BlockEntityDimension";
+	private static final String LEGACY_BLOCK_ENTITY_POSITION = "TilePos";
+	private static final String LEGACY_BLOCK_ENTITY_DIMENSION = "TileDimension";
+
 	public ResourceKey<Level> blockEntityDimension;
 	public BlockPos blockEntityPos;
 
@@ -52,15 +57,18 @@ public abstract class SingleBlockEntityEdgePoint extends TrackEdgePoint {
 		super.read(nbt, registries, migration, dimensions);
 		if (migration)
 			return;
-		blockEntityPos = NBTHelper.readBlockPos(nbt, "BlockEntityPos");
-		blockEntityDimension = dimensions.decode(nbt.contains("BlockEntityDimension") ? nbt.getInt("BlockEntityDimension") : -1);
+		String positionKey = nbt.contains(BLOCK_ENTITY_POSITION) ? BLOCK_ENTITY_POSITION : LEGACY_BLOCK_ENTITY_POSITION;
+		String dimensionKey =
+			nbt.contains(BLOCK_ENTITY_DIMENSION) ? BLOCK_ENTITY_DIMENSION : LEGACY_BLOCK_ENTITY_DIMENSION;
+		blockEntityPos = NBTHelper.readBlockPos(nbt, positionKey);
+		blockEntityDimension = dimensions.decode(nbt.contains(dimensionKey) ? nbt.getInt(dimensionKey) : -1);
 	}
 
 	@Override
 	public void write(CompoundTag nbt, HolderLookup.Provider registries, DimensionPalette dimensions) {
 		super.write(nbt, registries, dimensions);
-		nbt.put("BlockEntityPos", NbtUtils.writeBlockPos(blockEntityPos));
-		nbt.putInt("BlockEntityDimension", dimensions.encode(blockEntityDimension));
+		nbt.put(BLOCK_ENTITY_POSITION, NbtUtils.writeBlockPos(blockEntityPos));
+		nbt.putInt(BLOCK_ENTITY_DIMENSION, dimensions.encode(blockEntityDimension));
 	}
 
 }

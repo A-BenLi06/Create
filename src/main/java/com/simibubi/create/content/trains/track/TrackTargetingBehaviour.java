@@ -157,6 +157,16 @@ public class TrackTargetingBehaviour<T extends TrackEdgePoint> extends BlockEnti
 				T point = trackGraph.getPoint(edgePointType, id);
 				if (point == null)
 					continue;
+				if (!isClientSide && point instanceof SingleBlockEntityEdgePoint singleBlockPoint
+					&& (!blockEntity.getBlockPos()
+						.equals(singleBlockPoint.getBlockEntityPos())
+						|| !level.dimension()
+							.equals(singleBlockPoint.getBlockEntityDimension()))) {
+					point.blockEntityAdded(blockEntity, getTargetDirection() == AxisDirection.POSITIVE);
+					Create.RAILWAYS.markTracksDirty();
+					Create.RAILWAYS.sync.pointAdded(trackGraph, point);
+					blockEntity.notifyUpdate();
+				}
 				return point;
 			}
 

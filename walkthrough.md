@@ -431,3 +431,15 @@ reasoning and results rather than private chain-of-thought.
   the former heads under local `refs/backup/author-rewrite-20260823/*` recovery references.
 - Queried the GitHub commit API after the push and confirmed that all four rewritten commits map
   both author and committer to `A-BenLi06`.
+
+## 2026-08-23T00:58:26+08:00 — Normalize remaining repository attribution
+
+- Audited every branch and tag in all 21 repositories owned by the account rather than relying on
+  GitHub's default-branch commit search.
+- Found 22 remaining automation-identity commits in this fork, limited to the maintained 1.20.1
+  and 1.21.1 performance histories and their two release tags. The three upstream PR branches were
+  already clean after the earlier targeted rewrite.
+- Rewrote only matching author or committer identities to `A-BenLi06` with the account's verified
+  email, preserving commit messages, dates, topology, and every final source tree.
+- Preserved the original affected refs in a local recovery bundle before updating remote branches
+  and release tags with explicit leases.

@@ -419,3 +419,15 @@ reasoning and results rather than private chain-of-thought.
   renamed to `perf/optimized-build-1.20.1` with the same replacement-first sequence.
 - Updated the current GitHub release to tag `create-6.0.10-performance-v6` with the neutral v6 JAR,
   and retained a neutral 1.20.1 release. Superseded branded releases and tags were removed.
+
+## 2026-08-23T00:39:32+08:00 — Correct upstream PR commit attribution
+
+- Rewrote the four commits across upstream PRs #10701, #10702, and #10703 so both the Git author
+  and committer resolve to the contributor's verified GitHub account instead of the automation
+  placeholder identity.
+- Preserved each branch's final tree object exactly, so the source, tests, and PR diffs are
+  byte-for-byte unchanged. Only commit metadata, parent hashes, and resulting commit IDs changed.
+- Updated the fork branches with `--force-with-lease` after comparing their remote heads, and kept
+  the former heads under local `refs/backup/author-rewrite-20260823/*` recovery references.
+- Queried the GitHub commit API after the push and confirmed that all four rewritten commits map
+  both author and committer to `A-BenLi06`.
